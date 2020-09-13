@@ -19,7 +19,7 @@ year = {2020}
 ---
 
 #### Model Architecture:
-<img src="utils/network_images/newest_model_skip.jpg"
+<img src="Utils/Network_Images/newest_model_skip.jpg"
      alt="Model Architecture"
      style="float: center; margin-right: 30px;" />
 
