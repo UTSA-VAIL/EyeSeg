@@ -7,7 +7,7 @@
 
 #### BibTex:
 <pre>
-@InProceedings{perryECCV2020SparSeg,
+@InProceedings{perryECCV2020EyeSeg,
 author = {Perry, Jonathan and Fernandez, Amanda},
 title = {EyeSeg: Fast and Efficient Few-Shot Semantic Segmentation},
 booktitle = {European Conference on Computer Vision (ECCV) Workshops},
