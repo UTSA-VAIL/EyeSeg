@@ -141,7 +141,7 @@ class decoder_block:
         layer2 = self.dropout2(layer2)
         return self.activation2(layer2)
         
-class SparSeg:
+class EyeSeg:
     
     def __init__(self, args):
         '''
