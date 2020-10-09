@@ -1,0 +1,4 @@
+# ignore the saves files
+*.hdf5
+# ignore the py cache files
+*.pyc
