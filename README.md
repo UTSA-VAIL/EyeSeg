@@ -27,7 +27,7 @@ year = {2020}
 <pre>python3 train.py --command-one=cmdone --command-two=cmdtwo</pre>
 
 #### Requirements:
-> <i> This is a basic list, where more dependencies might be required</i>...[<b>See requirements.txt</b>](https://github.com/dcjmp90/SparSeg/blob/master/utils/requirements/requirements.txt)
+> Basic list of packages 
 <pre>
 matplotlib==3.2.1
 numpy==1.18.3
