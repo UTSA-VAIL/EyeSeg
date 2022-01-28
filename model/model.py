@@ -23,7 +23,7 @@ class EncoderBlock(nn.Module):
             each dropout layer instance, must be a floating point value.
 
     """
-    def __init__(self,input_channels : int, output_channels : int, down_size : bool, prob : float):
+    def __init__(self,input_channels : int, output_channels : int, down_size : bool, prob : float, dilation=(1,1)):
         super(EncoderBlock, self).__init__()
         
         # Downsample boolean
@@ -40,7 +40,7 @@ class EncoderBlock(nn.Module):
                                 ,output_channels
                                 ,kernel_size=(1,1)
                                 ,padding=(0,0)
-                                ,dilation=(2,2)
+                                ,dilation=dilation
                                 ,bias = False
                                 )
         self.conv2_2 = nn.Conv2d(output_channels
@@ -53,7 +53,7 @@ class EncoderBlock(nn.Module):
                                 ,output_channels
                                 ,kernel_size=(1,1)
                                 ,padding=(0,0)
-                                ,dilation=(4,4)
+                                ,dilation=dilation
                                 ,bias = False
                                 )
         self.conv3_2 = nn.Conv2d(output_channels
@@ -224,11 +224,13 @@ class EyeSeg(nn.Module):
                                         ,output_channels=channel_size
                                         ,down_size=True
                                         ,prob=prob
+                                        ,dilation=(2,2)
                                         )
         self.down_block3 = EncoderBlock(input_channels=channel_size
                                         ,output_channels=channel_size
                                         ,down_size=True
                                         ,prob=prob
+                                        ,dilation=(4,4)
                                         )
         self.down_block4 = EncoderBlock(input_channels=channel_size
                                         ,output_channels=channel_size
@@ -237,12 +239,6 @@ class EyeSeg(nn.Module):
                                         )
 
         self.down_block5 = EncoderBlock(input_channels=channel_size
-                                        ,output_channels=channel_size
-                                        ,down_size=True
-                                        ,prob=prob
-                                        )
-
-        self.down_block6 = EncoderBlock(input_channels=channel_size
                                         ,output_channels=channel_size
                                         ,down_size=True
                                         ,prob=prob
@@ -274,12 +270,6 @@ class EyeSeg(nn.Module):
                                      ,prob=prob
                                      )
 
-        self.up_block5 = DecoderBlock(skip_channels=channel_size
-                                     ,input_channels=channel_size
-                                     ,output_channels=channel_size
-                                     ,up_stride=(2,2)
-                                     ,prob=prob
-                                     )
         self.out_conv = nn.Conv2d(in_channels=channel_size,out_channels=out_channels,kernel_size=1,padding=0)
         self.bn = torch.nn.BatchNorm2d(num_features=out_channels, momentum=0.99)
 
