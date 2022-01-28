@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import gc
 from lib.command_line import command_line_args
 from scipy.ndimage import distance_transform_edt as distance
 args = command_line_args.parse_args()
@@ -70,7 +71,7 @@ def torch_validate(val_data, model, device, cce_loss, dice_loss, surface_loss):
             loss = torch.mean(dice_loss(output.to(device), ground_truth.to(device).long())) 
             loss = loss + torch.mean(cce)
             predict = get_predictions(output.to(device))
-            iou = per_class_mIoU(predict,ground_truth, info=True)
+            iou = per_class_mIoU(predict,ground_truth)
             ious.append(iou)
             losses.append(loss.detach().item())
     avg_acc, avg_loss = np.average(ious), np.average(losses)
