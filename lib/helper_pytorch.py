@@ -57,7 +57,7 @@ def pp_class_miou(classes):
     print()
     print()
 
-def torch_validate(val_data, model, device, cce_loss, dice_loss, surface_loss, alpha):
+def torch_validate(val_data, model, device, cce_loss, dice_loss, surface_loss):
     ious = list()
     losses = list()
     with torch.no_grad():

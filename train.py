@@ -75,7 +75,7 @@ def torch_main():
                     training_file.write(active_log + '\n')
             loss.backward()
             optimizer.step()
-        mIoU, validation_loss = torch_validate(val,model,device, categorical_loss, dice_loss, surface_loss, alpha[epoch])
+        mIoU, validation_loss = torch_validate(val,model,device, categorical_loss, dice_loss, surface_loss)
         epoch_end ='Epoch:{}, Train mIoU: {:.4f}, Train Loss: {:.3f}'.format(epoch+1,np.average(ious), np.average(train_loss))
         validation_results ='Validation mIoU: {:.4f}, Validation Loss: {:.3f}'.format(mIoU, validation_loss)
         print(epoch_end)
