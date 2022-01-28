@@ -2,3 +2,7 @@
 *.hdf5
 # ignore the py cache files
 *.pyc
+# ignore data related files
+*.txt
+*.npy
+*.png
