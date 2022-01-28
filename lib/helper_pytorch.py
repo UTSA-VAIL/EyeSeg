@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from lib.command_line import command_line_args
 from scipy.ndimage import distance_transform_edt as distance
 args = command_line_args.parse_args()
