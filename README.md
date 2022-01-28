@@ -29,8 +29,17 @@ year = {2020}
 #### Requirements:
 > <i> This is a basic list, where more dependencies might be required</i>...[<b>See requirements.txt</b>](https://github.com/dcjmp90/SparSeg/blob/master/utils/requirements/requirements.txt)
 <pre>
-Pillow 7.1
-tf-nightly-gpu 2.2
-opencv-python 4.2
-numpy 1.18
+matplotlib==3.2.1
+numpy==1.18.3
+opencv-python==4.2.0.34
+Pillow==7.1.1
+pprint==0.1
+scikit-image==0.16.2
+scikit-learn==0.22.2.post1
+scipy==1.4.1
+torch==1.10.1
+torch-summary==1.3.2
+torchsummary==1.5.1
+torchvision==0.6.0
+tqdm==4.46.1
 </pre>
