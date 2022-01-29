@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import gc
 from lib.command_line import command_line_args
+from data.labels import trainId2label
 from scipy.ndimage import distance_transform_edt as distance
 args = command_line_args.parse_args()
 

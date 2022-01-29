@@ -80,6 +80,11 @@ class command_line_args:
                             , type=str
                             , default='./data/train_images.txt'
                             )
+        parser.add_argument('--ul-images' 
+                            , dest='UL_IMAGES'
+                            , type=str
+                            , default='./data/ul_images.txt'
+                            )
         parser.add_argument('--train-labels' 
                             , dest='TRAIN_LABELS'
                             , type=str
