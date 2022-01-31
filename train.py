@@ -60,6 +60,7 @@ def torch_main():
         for batch_num, batch in enumerate(train):
             optimizer.zero_grad()
             input_image, ground_truth, one_hot, spatial_gt, distMap, name = batch
+            loss_ul = None
             if args.MODE == 'semi':
                 try:
                     input_ul_img, _, _, _, _, name_ul = next(ul_train_data)
@@ -79,11 +80,16 @@ def torch_main():
             
             ious.append(iou)
 
-            if args.MODE == 'semi' and input_ul_img is not None:
+            if args.MODE == 'semi' and loss_ul is not None:
                 loss += loss_ul
 
             train_loss.append(loss.detach().item())
-            if (batch_num+1)%10 == 0:
+            if (batch_num+1)%10 == 0 and loss_ul is not None:
+                active_log = 'Epoch:{} [{}/{}], Loss: {:.3f}, UL_Loss: {:.3f}'.format(epoch+1,batch_num+1,total_train_data,loss.detach().item(), loss_ul.detach().item())
+                print(active_log)
+                with open(train_file, 'a+') as training_file:            
+                    training_file.write(active_log + '\n')
+            elif (batch_num+1)%10 == 0:
                 active_log = 'Epoch:{} [{}/{}], Loss: {:.3f}'.format(epoch+1,batch_num+1,total_train_data,loss.detach().item())
                 print(active_log)
                 with open(train_file, 'a+') as training_file:            
