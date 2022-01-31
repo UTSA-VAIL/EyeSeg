@@ -34,6 +34,7 @@ def torch_main():
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=3)
     categorical_loss = CrossEntropyLoss2d()
     surface_loss = SurfaceLoss()
+    entropy = EntropyLoss()
     dice_loss = GeneralizedDiceLoss()
     training_data = TorchData(args.TRAIN_IMAGES, args.TRAIN_LABELS, args)
     validation_data = TorchData(args.VAL_IMAGES, args.VAL_LABELS, args)
@@ -55,11 +56,19 @@ def torch_main():
         ious = list()
         train_loss = list()
         gc.collect()
+        ul_train_data = iter(ul_train)
         for batch_num, batch in enumerate(train):
             optimizer.zero_grad()
             input_image, ground_truth, one_hot, spatial_gt, distMap, name = batch
-
-            
+            if args.MODE == 'semi':
+                try:
+                    input_ul_img, _, _, _, _, name_ul = next(ul_train_data)
+                except:
+                    input_ul_img, name_ul = None, None
+                if input_ul_img is not None:
+                    ul_in = input_ul_img.to(device)
+                    output_ul = model(ul_in)
+                    loss_ul = torch.mean(entropy(output_ul))
             data_in = input_image.to(device)
             output = model(data_in)
             cce = categorical_loss(output.to(device),ground_truth.to(device).long())*(torch.from_numpy(np.ones(spatial_gt.shape)).to(torch.float32).to(device)+(spatial_gt).to(torch.float32).to(device))
@@ -69,6 +78,10 @@ def torch_main():
             iou = per_class_mIoU(predict,ground_truth)
             
             ious.append(iou)
+
+            if args.MODE == 'semi' and input_ul_img is not None:
+                loss += loss_ul
+
             train_loss.append(loss.detach().item())
             if (batch_num+1)%10 == 0:
                 active_log = 'Epoch:{} [{}/{}], Loss: {:.3f}'.format(epoch+1,batch_num+1,total_train_data,loss.detach().item())

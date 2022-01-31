@@ -181,4 +181,9 @@ class command_line_args:
                             , type=int
                             , default=1
                             )
+        parser.add_argument('--mode'  
+                            , dest='MODE'
+                            , type=str
+                            , default='semi'
+                            )
         return parser.parse_args()

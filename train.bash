@@ -15,5 +15,6 @@ sudo docker run -i -t \
                 --batch-size=8 \
                 --model-name=eyeseg_openeds \
                 --dropout-rate=0.30 \
-                --log-epoch=60 \
-                --epochs=100
+                --log-epoch=1 \
+                --epochs=100 \
+                --learn-rate=1e-4
