@@ -120,5 +120,6 @@ class EntropyLoss(nn.Module):
         super(EntropyLoss, self).__init__()
 
     def forward(self, outputs):
-        b = F.softmax(outputs, dim=1) * F.log_softmax(outputs, dim=1)
-        return b.sum()
+        plog = F.log_softmax(outputs, dim=1)
+        p = F.softmax(outputs, dim=1)
+        return - p.mul(plog)
