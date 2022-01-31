@@ -59,9 +59,10 @@ class Loader:
                 im = Image.open(self.utils.ROOT_FOLDER+img).convert("L")
                 im = np.array(im, dtype = np.float32)
                 im = np.expand_dims(im, axis=-1) if self.utils.INPUT_SHAPE[-1] == 1 else im
+                im = np.moveaxis(im, -1, 0)
                 name = img.split('.png')[0].split('/')[-1]
                 if gt is None:
-                    return im, None, None, None, None, name
+                    return im, [], [], [], [], name
                 else:
                     flat = np.load(self.utils.ROOT_FOLDER+gt)
                     flat = np.array(flat, dtype=np.uint8)
@@ -84,7 +85,7 @@ class Loader:
             im = np.moveaxis(im, -1, 0)
             im = np.array(im, dtype=np.float16)
             name = img.split('.png')[0].split('/')[-1]
-            return im, None, None, None, None, name
+            return im, [], [], [], [], name
 
 class TorchData(torch.utils.data.Dataset):
     """the dataset object will process text line data mapped as text file x  and text file y or data sample file and label text file
