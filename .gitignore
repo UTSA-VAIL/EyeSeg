@@ -6,3 +6,5 @@
 *.txt
 *.npy
 *.png
+# ignore pickle files of saved models
+*.pkl

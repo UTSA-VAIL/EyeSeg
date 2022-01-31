@@ -34,12 +34,15 @@ def torch_main():
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=3)
     categorical_loss = CrossEntropyLoss2d()
     surface_loss = SurfaceLoss()
+    entropy = EntropyLoss()
     dice_loss = GeneralizedDiceLoss()
     training_data = TorchData(args.TRAIN_IMAGES, args.TRAIN_LABELS, args)
     validation_data = TorchData(args.VAL_IMAGES, args.VAL_LABELS, args)
+    unlabeled_data = TorchData(args.UL_IMAGES, None, args, mode='semi')
     total_train_data = len(training_data) // args.BATCH_SIZE
     train = DataLoader(training_data, batch_size=args.BATCH_SIZE, shuffle=True, num_workers=args.WORKERS, pin_memory=True)
     val = DataLoader(validation_data, batch_size=args.BATCH_SIZE, shuffle=False, num_workers=args.WORKERS, pin_memory=True)
+    ul_train = DataLoader(unlabeled_data, batch_size=args.BATCH_SIZE, shuffle=True, num_workers=args.WORKERS, pin_memory=True)
     current_lr = args.LEARN_RATE
     os.makedirs(args.SAVE_FOLDER+args.MODEL_NAME,exist_ok=True)
     train_file = args.SAVE_FOLDER+args.MODEL_NAME+'/training_status.txt'
@@ -53,11 +56,19 @@ def torch_main():
         ious = list()
         train_loss = list()
         gc.collect()
+        ul_train_data = iter(ul_train)
         for batch_num, batch in enumerate(train):
             optimizer.zero_grad()
             input_image, ground_truth, one_hot, spatial_gt, distMap, name = batch
-
-            
+            if args.MODE == 'semi':
+                try:
+                    input_ul_img, _, _, _, _, name_ul = next(ul_train_data)
+                except:
+                    input_ul_img, name_ul = None, None
+                if input_ul_img is not None:
+                    ul_in = input_ul_img.to(device)
+                    output_ul = model(ul_in)
+                    loss_ul = torch.mean(entropy(output_ul))
             data_in = input_image.to(device)
             output = model(data_in)
             cce = categorical_loss(output.to(device),ground_truth.to(device).long())*(torch.from_numpy(np.ones(spatial_gt.shape)).to(torch.float32).to(device)+(spatial_gt).to(torch.float32).to(device))
@@ -67,6 +78,10 @@ def torch_main():
             iou = per_class_mIoU(predict,ground_truth)
             
             ious.append(iou)
+
+            if args.MODE == 'semi' and input_ul_img is not None:
+                loss += loss_ul
+
             train_loss.append(loss.detach().item())
             if (batch_num+1)%10 == 0:
                 active_log = 'Epoch:{} [{}/{}], Loss: {:.3f}'.format(epoch+1,batch_num+1,total_train_data,loss.detach().item())
@@ -94,11 +109,25 @@ def torch_main():
                         'loss': loss
                         }
                         , args.SAVE_FOLDER+args.MODEL_NAME+'/epoch_'+str(epoch+1)+'/'+'model/model_save.pkl')
+            with torch.no_grad():
+                for batch_n, data in enumerate(val):
+                    if (batch_n+1)%100 == 0:
+                        input_image, ground_truth, one_hot, spatial_gt, distMap, name = data
+                        data_in = input_image.to(device)
+                        output = model(data_in)
+                        predict = get_predictions(output)
+                        for idx in range(len(input_image)):
+                            orig_im = np.squeeze(np.array(input_image[idx].cpu().numpy(), dtype=np.uint8))
+                            orig_im = cv2.cvtColor(orig_im,cv2.COLOR_GRAY2BGR)
+                            gt = labelid_to_color(np.array(ground_truth[idx].cpu().numpy(), dtype=np.uint8))
+                            pr = labelid_to_color(predict[idx].cpu().numpy())
+                            stack = np.hstack([orig_im,gt,pr])
+                            plt.imsave(args.SAVE_FOLDER+args.MODEL_NAME+'/epoch_'+str(epoch+1)+'/'+'hstack_imgs/'+str(name[idx])+'.png', stack)
         scheduler.step(validation_loss)
         if current_lr > optimizer.param_groups[0]['lr']:
             training_file.write('Learning Rate Decay on Epoch: {}\nLearning Rate Previous: {}\nLearning Rate Current: {}\n'.format(epoch+1, current_lr, optimizer.param_groups[0]['lr']))
             current_lr = optimizer.param_groups[0]['lr']  
-    
+
 if __name__ == '__main__':
     if args.FRAMEWORK.lower().strip() == 'torch':
         torch_main()
